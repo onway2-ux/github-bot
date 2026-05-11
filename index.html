@@ -83,25 +83,6 @@
                                 <label class="block text-sm font-medium text-gray-700">Sender Display Name</label>
                                 <input type="text" id="sender-name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
                             </div>
-                            
-                            <!-- Profile Picture Toggle -->
-                            <div class="pt-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Display Picture Source</label>
-                                <div class="flex items-center space-x-4 mb-3">
-                                    <label class="flex items-center cursor-pointer">
-                                        <input type="radio" name="pfp-source" value="gmail" checked class="form-radio text-indigo-600">
-                                        <span class="ml-2 text-xs text-gray-700">Gmail Profile</span>
-                                    </label>
-                                    <label class="flex items-center cursor-pointer">
-                                        <input type="radio" name="pfp-source" value="custom" class="form-radio text-indigo-600">
-                                        <span class="ml-2 text-xs text-gray-700">Custom URL</span>
-                                    </label>
-                                </div>
-                                <div id="custom-pfp-container" class="hidden">
-                                    <input type="text" id="custom-pfp-url" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2" placeholder="https://image.url/photo.jpg">
-                                    <p class="text-[10px] text-gray-500 mt-1 italic">Note: Custom URLs require Gravatar linkage for most email clients.</p>
-                                </div>
-                            </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Subject Line</label>
@@ -232,9 +213,6 @@
         const senderNameInput = document.getElementById('sender-name');
         const delayInput = document.getElementById('email-delay');
         const resetStatusBtn = document.getElementById('reset-status-btn');
-        const customPfpContainer = document.getElementById('custom-pfp-container');
-        const customPfpUrlInput = document.getElementById('custom-pfp-url');
-        const pfpRadios = document.getElementsByName('pfp-source');
 
         // --- Auth ---
         onAuthStateChanged(auth, (user) => {
@@ -276,11 +254,6 @@
                     subjectInput.value = data.subject || '';
                     delayInput.value = data.delay || 30;
                     quill.root.innerHTML = data.template || '';
-                    
-                    const pfpSource = data.pfpSource || 'gmail';
-                    pfpRadios.forEach(r => { if(r.value === pfpSource) r.checked = true; });
-                    customPfpContainer.classList.toggle('hidden', pfpSource === 'gmail');
-                    customPfpUrlInput.value = data.customPfpUrl || '';
                 }
             });
 
@@ -328,23 +301,14 @@
                 senderName: senderNameInput.value,
                 subject: subjectInput.value,
                 delay: delayInput.value,
-                template: quill.root.innerHTML,
-                pfpSource: Array.from(pfpRadios).find(r => r.checked).value,
-                customPfpUrl: customPfpUrlInput.value
+                template: quill.root.innerHTML
             });
         };
 
-        [subjectInput, delayInput, senderNameInput, customPfpUrlInput].forEach(el => el.onblur = updateCampaign);
+        [subjectInput, delayInput, senderNameInput].forEach(el => el.onblur = updateCampaign);
         quill.on('text-change', () => {
             clearTimeout(window.saveTimer);
             window.saveTimer = setTimeout(updateCampaign, 1000);
-        });
-
-        pfpRadios.forEach(r => {
-            r.onchange = () => {
-                customPfpContainer.classList.toggle('hidden', r.value === 'gmail');
-                updateCampaign();
-            };
         });
 
         resetStatusBtn.onclick = async () => {
