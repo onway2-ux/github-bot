@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cold Email Outreach Bot - v2.5 Final</title>
+    <title>GMB Send - Professional Cold Outreach</title>
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/jwfkJVTk/Chat-GPT-Image-May-11-2026-03-13-58-PM.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Quill Rich Text Editor -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -13,87 +14,92 @@
         .hidden { display: none; }
         #editor-container { height: 300px; }
         .ql-editor { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif; }
+        .brand-gradient { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 min-h-screen font-sans">
     <div id="app" class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
         
         <!-- Auth Section -->
         <div id="auth-container" class="flex flex-col items-center justify-center min-h-[80vh]">
-            <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md border border-gray-100">
-                <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Email Bot Login</h1>
+            <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md border border-gray-100 text-center">
+                <img src="https://i.postimg.cc/jwfkJVTk/Chat-GPT-Image-May-11-2026-03-13-58-PM.png" alt="GMB Send Logo" class="w-24 mx-auto mb-6 rounded-2xl">
+                <h1 class="text-4xl font-extrabold mb-2 text-gray-900">GMB Send</h1>
+                <p class="text-gray-500 mb-8 font-medium">By Saban Productions</p>
                 
-                <div id="login-form" class="space-y-4">
+                <div id="login-form" class="space-y-5 text-left">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Email Address</label>
-                        <input type="email" id="auth-email" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 border p-3" placeholder="admin@example.com">
+                        <label class="block text-sm font-semibold text-gray-700">Email Address</label>
+                        <input type="email" id="auth-email" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 border p-3 outline-none" placeholder="admin@example.com">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Password</label>
-                        <input type="password" id="auth-password" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 border p-3" placeholder="••••••••">
+                        <label class="block text-sm font-semibold text-gray-700">Password</label>
+                        <input type="password" id="auth-password" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 border p-3 outline-none" placeholder="••••••••">
                     </div>
-                    <div class="flex flex-col space-y-3 pt-2">
-                        <button id="login-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-md">Login</button>
+                    <div class="pt-2">
+                        <button id="login-btn" class="w-full brand-gradient hover:opacity-90 text-white font-bold py-4 px-4 rounded-xl transition shadow-lg text-lg">Enter Dashboard</button>
                     </div>
-                    <p id="auth-error" class="text-red-500 text-sm mt-2 hidden text-center"></p>
+                    <p id="auth-error" class="text-red-500 text-sm mt-2 hidden text-center font-medium"></p>
                 </div>
             </div>
         </div>
 
         <!-- Dashboard Section -->
         <div id="dashboard-container" class="hidden">
-            <header class="flex justify-between items-center mb-8 bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-800">Outreach Dashboard</h1>
-                    <p id="user-display" class="text-sm text-gray-500 font-medium"></p>
+            <header class="flex justify-between items-center mb-8 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <div class="flex items-center space-x-4">
+                    <img src="https://i.postimg.cc/jwfkJVTk/Chat-GPT-Image-May-11-2026-03-13-58-PM.png" alt="Logo" class="w-12 rounded-lg">
+                    <div>
+                        <h1 class="text-2xl font-black text-gray-900 tracking-tight">GMB Send <span class="text-indigo-600">v2.5</span></h1>
+                        <p id="user-display" class="text-xs text-gray-400 font-bold uppercase tracking-widest"></p>
+                    </div>
                 </div>
-                <button id="logout-btn" class="bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-600 px-4 py-2 rounded-lg font-medium transition border border-gray-200">Logout</button>
+                <button id="logout-btn" class="bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-500 px-5 py-2 rounded-xl font-bold transition border border-gray-100 text-sm">Logout</button>
             </header>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Sidebar -->
                 <div class="lg:col-span-1 space-y-6">
-                    <section class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                        <h2 class="text-lg font-semibold mb-4 border-b pb-2 flex items-center">
-                            <span class="mr-2">⚙️</span> Configuration
+                    <section class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <h2 class="text-lg font-bold mb-4 border-b pb-2 flex items-center text-gray-800">
+                            <span class="mr-2">🚀</span> API Configuration
                         </h2>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">GitHub Repo (user/repo)</label>
-                                <input type="text" id="gh-repo" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2" placeholder="username/repo-name">
+                                <label class="block text-sm font-bold text-gray-600">GitHub Repo (user/repo)</label>
+                                <input type="text" id="gh-repo" class="mt-1 block w-full rounded-lg border-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-3 outline-none" placeholder="e.g. username/gmb-send">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">GitHub PAT</label>
-                                <input type="password" id="gh-pat" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
-                                <div class="mt-2 flex items-center">
+                                <label class="block text-sm font-bold text-gray-600">GitHub PAT</label>
+                                <input type="password" id="gh-pat" class="mt-1 block w-full rounded-lg border-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-3 outline-none">
+                                <div class="mt-3 flex items-center">
                                     <input type="checkbox" id="remember-pat" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4">
-                                    <label for="remember-pat" class="ml-2 text-xs text-gray-600">Remember token in this browser</label>
+                                    <label for="remember-pat" class="ml-2 text-xs text-gray-500 font-medium">Securely remember on this device</label>
                                 </div>
                             </div>
-                            <button id="save-config" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition">Save Configuration</button>
+                            <button id="save-config" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-3 px-4 rounded-xl transition shadow-md">Update API Settings</button>
                         </div>
                     </section>
 
-                    <section class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                        <h2 class="text-lg font-semibold mb-4 border-b pb-2 flex items-center">
-                            <span class="mr-2">📈</span> Campaign Settings
+                    <section class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <h2 class="text-lg font-bold mb-4 border-b pb-2 flex items-center text-gray-800">
+                            <span class="mr-2">�</span> Campaign Settings
                         </h2>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Sender Display Name</label>
-                                <input type="text" id="sender-name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Subject Line</label>
-                                <input type="text" id="email-subject" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
+                                <label class="block text-sm font-bold text-gray-600">Sender Display Name</label>
+                                <input type="text" id="sender-name" class="mt-1 block w-full rounded-lg border-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-3 outline-none" placeholder="Your Name or Brand">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Delay (seconds)</label>
-                                <input type="number" id="email-delay" value="30" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
+                                <label class="block text-sm font-bold text-gray-600">Subject Line</label>
+                                <input type="text" id="email-subject" class="mt-1 block w-full rounded-lg border-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-3 outline-none">
                             </div>
-                            <button id="trigger-workflow" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-xl transition shadow-lg flex items-center justify-center">
-                                <span id="btn-text">🚀 Send Campaign</span>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-600">Delay (seconds)</label>
+                                <input type="number" id="email-delay" value="30" class="mt-1 block w-full rounded-lg border-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-3 outline-none">
+                            </div>
+                            <button id="trigger-workflow" class="w-full brand-gradient hover:opacity-90 text-white font-bold py-4 px-4 rounded-xl transition shadow-lg flex items-center justify-center text-lg">
+                                <span id="btn-text">🚀 Launch Campaign</span>
                                 <svg id="btn-loader" class="hidden animate-spin ml-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                             </button>
                         </div>
@@ -102,55 +108,59 @@
 
                 <!-- Main Content -->
                 <div class="lg:col-span-2 space-y-6">
-                    <section class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                        <h2 class="text-lg font-semibold mb-4 border-b pb-2 flex items-center">
-                            <span class="mr-2">📝</span> Word Processor
+                    <section class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                        <h2 class="text-lg font-bold mb-4 border-b pb-2 flex items-center text-gray-800">
+                            <span class="mr-2">✍️</span> Email Designer
                         </h2>
-                        <p class="text-xs text-gray-500 mb-2 italic">Use {{name}} for personalization.</p>
-                        <div id="editor-container"></div>
+                        <p class="text-xs text-gray-400 mb-4 italic">Pro Tip: Use <code class="bg-gray-100 px-1 rounded text-indigo-600">{{name}}</code> for automated personalization.</p>
+                        <div id="editor-container" class="rounded-xl border-gray-200"></div>
                     </section>
 
-                    <section class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                        <div class="flex justify-between items-center mb-4 border-b pb-2">
-                            <h2 class="text-lg font-semibold flex items-center">
-                                <span class="mr-2">👥</span> Prospects
+                    <section class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex justify-between items-center mb-6 border-b pb-4">
+                            <h2 class="text-lg font-bold flex items-center text-gray-800">
+                                <span class="mr-2">�</span> Target Prospects
                             </h2>
-                            <div class="flex space-x-2">
-                                <button id="reset-status-btn" class="bg-amber-50 hover:bg-amber-100 text-amber-700 px-3 py-1 rounded-lg font-semibold text-sm transition border border-amber-100">Reset Status</button>
-                                <button id="add-prospect-modal-btn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg font-semibold text-sm transition border border-indigo-100">+ Add Bulk</button>
+                            <div class="flex space-x-3">
+                                <button id="reset-status-btn" class="bg-amber-50 hover:bg-amber-100 text-amber-700 px-4 py-2 rounded-xl font-bold text-xs transition border border-amber-100">Reset Status</button>
+                                <button id="add-prospect-modal-btn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-xl font-bold text-xs transition border border-indigo-100">+ Add Bulk List</button>
                             </div>
                         </div>
                         
                         <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
+                            <table class="min-w-full divide-y divide-gray-100">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Action</th>
+                                        <th class="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Name</th>
+                                        <th class="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Email</th>
+                                        <th class="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Status</th>
+                                        <th class="px-6 py-4 text-right text-xs font-black text-gray-400 uppercase tracking-widest">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody id="prospects-list" class="bg-white divide-y divide-gray-200"></tbody>
+                                <tbody id="prospects-list" class="bg-white divide-y divide-gray-50"></tbody>
                             </table>
                         </div>
                     </section>
                 </div>
             </div>
+            
+            <footer class="mt-12 text-center text-gray-400 text-xs font-medium pb-8">
+                &copy; 2024 GMB Send. Engineered with &hearts; by <a href="#" class="text-indigo-500 hover:underline">Saban Productions</a>.
+            </footer>
         </div>
     </div>
 
     <!-- Bulk Add Modal -->
-    <div id="add-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
-        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-2xl mx-4">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-gray-800">Add Bulk Prospects</h3>
-                <button id="add-row-btn" class="text-indigo-600 hover:text-indigo-800 text-sm font-bold">+ Add Slot</button>
+    <div id="add-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 overflow-y-auto h-full w-full z-50 flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-2xl mx-4 border border-gray-100">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-black text-gray-800">Import Targets</h3>
+                <button id="add-row-btn" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-xl text-xs font-black transition uppercase tracking-tighter">+ Add Row Slot</button>
             </div>
-            <div id="bulk-rows-container" class="max-h-[50vh] overflow-y-auto space-y-3 mb-6 p-2"></div>
-            <div class="flex justify-end space-x-3 pt-4 border-t">
-                <button id="close-modal" class="px-4 py-2 text-gray-500 hover:text-gray-700 font-medium">Cancel</button>
-                <button id="save-bulk-prospects" class="bg-indigo-600 px-6 py-2 rounded-lg text-white font-bold hover:bg-indigo-700 transition">Save All</button>
+            <div id="bulk-rows-container" class="max-h-[50vh] overflow-y-auto space-y-3 mb-8 p-2 pr-4 custom-scrollbar"></div>
+            <div class="flex justify-end space-x-4 pt-6 border-t border-gray-50">
+                <button id="close-modal" class="px-6 py-3 text-gray-400 hover:text-gray-600 font-bold transition">Cancel</button>
+                <button id="save-bulk-prospects" class="brand-gradient px-10 py-3 rounded-2xl text-white font-black shadow-lg hover:opacity-90 transition">Save All Prospects</button>
             </div>
         </div>
     </div>
@@ -160,14 +170,16 @@
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getDatabase, ref, set, push, onValue, update, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // --- Firebase Configuration ---
+        // USER: Replace the values below with your own Firebase Project details
         const firebaseConfig = {
-            apiKey: "AIzaSyDpKrYYfa_bzxSUc0qzwIMEymfG8bokIc0",
-            authDomain: "githubemail-s.firebaseapp.com",
-            databaseURL: "https://githubemail-s-default-rtdb.firebaseio.com",
-            projectId: "githubemail-s",
-            storageBucket: "githubemail-s.firebasestorage.app",
-            messagingSenderId: "737852994781",
-            appId: "1:737852994781:web:1adc9eb499e4d4301e1734"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -177,7 +189,7 @@
         // --- Editor Setup ---
         const quill = new Quill('#editor-container', {
             theme: 'snow',
-            placeholder: 'Hi {{name}},<br><br>I would love to connect...',
+            placeholder: 'Craft your winning message here...',
             modules: {
                 toolbar: [
                     ['bold', 'italic', 'underline'],
@@ -190,7 +202,7 @@
         // --- State ---
         let currentUser = null;
         let config = {
-            ghRepo: 'onway2-ux/github-bot',
+            ghRepo: localStorage.getItem('ghRepo') || '',
             ghPat: localStorage.getItem('ghPat') || ''
         };
 
@@ -220,7 +232,7 @@
                 currentUser = user;
                 authContainer.classList.add('hidden');
                 dashboardContainer.classList.remove('hidden');
-                userDisplay.textContent = `User: ${user.email}`;
+                userDisplay.textContent = `Access Level: Admin (${user.email})`;
                 loadDashboard();
             } else {
                 currentUser = null;
@@ -234,7 +246,7 @@
                 authError.classList.add('hidden');
                 await signInWithEmailAndPassword(auth, authEmail.value, authPass.value);
             } catch (e) {
-                authError.textContent = e.message;
+                authError.textContent = "Access Denied: Invalid credentials.";
                 authError.classList.remove('hidden');
             }
         };
@@ -268,21 +280,21 @@
                 const row = document.createElement('tr');
                 row.className = "hover:bg-gray-50 transition";
                 row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${p.name}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.email}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${p.status === 'sent' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">
+                    <td class="px-6 py-5 whitespace-nowrap text-sm font-bold text-gray-800">${p.name}</td>
+                    <td class="px-6 py-5 whitespace-nowrap text-sm text-gray-500 font-medium">${p.email}</td>
+                    <td class="px-6 py-5 whitespace-nowrap">
+                        <span class="px-3 py-1 inline-flex text-[10px] leading-5 font-black uppercase tracking-tighter rounded-lg ${p.status === 'sent' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">
                             ${p.status || 'pending'}
                         </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button class="text-red-500 hover:text-red-700 font-bold delete-btn" data-id="${id}">Remove</button>
+                    <td class="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-red-400 hover:text-red-600 font-black delete-btn transition" data-id="${id}">Remove</button>
                     </td>
                 `;
                 prospectsList.appendChild(row);
             });
             document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.onclick = () => { if(confirm('Remove?')) remove(ref(db, `prospects/${btn.dataset.id}`)); };
+                btn.onclick = () => { if(confirm('Are you sure you want to remove this target?')) remove(ref(db, `prospects/${btn.dataset.id}`)); };
             });
         }
 
@@ -290,9 +302,10 @@
         saveConfigBtn.onclick = () => {
             config.ghRepo = ghRepoInput.value;
             config.ghPat = ghPatInput.value;
+            localStorage.setItem('ghRepo', config.ghRepo);
             if (rememberPatCheck.checked) localStorage.setItem('ghPat', config.ghPat);
             else localStorage.removeItem('ghPat');
-            alert('Settings saved!');
+            alert('GMB Send: API settings updated successfully!');
         };
 
         // --- Campaign Updates ---
@@ -312,14 +325,14 @@
         });
 
         resetStatusBtn.onclick = async () => {
-            if(!confirm('Reset all to pending?')) return;
+            if(!confirm('Reset delivery status for all targets?')) return;
             const snapshot = await get(ref(db, 'prospects'));
             const data = snapshot.val();
             if(!data) return;
             const updates = {};
             Object.keys(data).forEach(id => updates[`prospects/${id}/status`] = 'pending');
             await update(ref(db), updates);
-            alert('All prospects reset!');
+            alert('All target statuses reset to pending!');
         };
 
         // --- Bulk Add Modal ---
@@ -327,14 +340,14 @@
         const bulkContainer = document.getElementById('bulk-rows-container');
         document.getElementById('add-prospect-modal-btn').onclick = () => {
             bulkContainer.innerHTML = '';
-            for(let i=0; i<5; i++) addBulkRow();
+            for(let i=0; i<8; i++) addBulkRow();
             addModal.classList.remove('hidden');
         };
 
         function addBulkRow() {
             const div = document.createElement('div');
-            div.className = "flex space-x-2 bulk-row";
-            div.innerHTML = `<input type="text" placeholder="Name" class="w-1/2 border p-2 rounded-lg"><input type="email" placeholder="Email" class="w-1/2 border p-2 rounded-lg">`;
+            div.className = "flex space-x-3 bulk-row";
+            div.innerHTML = `<input type="text" placeholder="Target Name" class="w-1/2 border border-gray-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-indigo-100 transition"><input type="email" placeholder="Email Address" class="w-1/2 border border-gray-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-indigo-100 transition">`;
             bulkContainer.appendChild(div);
         }
         document.getElementById('add-row-btn').onclick = addBulkRow;
@@ -350,12 +363,12 @@
                     count++;
                 }
             }
-            if(count > 0) { addModal.classList.add('hidden'); alert(`Added ${count}!`); }
+            if(count > 0) { addModal.classList.add('hidden'); alert(`Successfully imported ${count} targets!`); }
         };
 
         // --- Workflow ---
         triggerBtn.onclick = async () => {
-            if (!config.ghRepo || !config.ghPat) return alert('Check GitHub Settings!');
+            if (!config.ghRepo || !config.ghPat) return alert('Error: Please check your API Configuration.');
             setLoading(true);
             try {
                 const res = await fetch(`https://api.github.com/repos/${config.ghRepo}/actions/workflows/email-bot.yml/dispatches`, {
@@ -363,13 +376,17 @@
                     headers: { 'Authorization': `token ${config.ghPat}`, 'Accept': 'application/vnd.github.v3+json' },
                     body: JSON.stringify({ ref: 'main' })
                 });
-                if (res.ok) alert('Started!'); else alert('Error: ' + (await res.json()).message);
-            } catch (e) { alert(e.message); } finally { setLoading(false); }
+                if (res.ok) alert('Campaign Initiated! Processing targets now...'); 
+                else {
+                    const errData = await res.json();
+                    alert('Launch Failed: ' + errData.message);
+                }
+            } catch (e) { alert('Network Error: ' + e.message); } finally { setLoading(false); }
         };
 
         function setLoading(loading) {
             triggerBtn.disabled = loading;
-            document.getElementById('btn-text').textContent = loading ? 'Starting...' : '🚀 Send Campaign';
+            document.getElementById('btn-text').textContent = loading ? 'Launching...' : '🚀 Launch Campaign';
             document.getElementById('btn-loader').classList.toggle('hidden', !loading);
             triggerBtn.classList.toggle('opacity-50', loading);
         }
