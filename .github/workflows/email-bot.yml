@@ -1,0 +1,30 @@
+name: Cold Email Bot
+
+on:
+  workflow_dispatch:
+
+jobs:
+  send-emails:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Run mailer script
+        env:
+          # Using secrets for security, but Python script has defaults as fallback
+          GMAIL_USER: ${{ secrets.GMAIL_USER || 'saban.productions00@gmail.com' }}
+          GMAIL_PASS: ${{ secrets.GMAIL_PASS || 'zouw kiep ubqs dbof' }}
+          FIREBASE_URL: ${{ secrets.FIREBASE_URL || 'https://githubemail-s-default-rtdb.firebaseio.com/' }}
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN || 'jBUMghKKe6tdHhpDRaTWLTRXPa6Gk90W5aootP4e' }}
+        run: python send_emails.py
