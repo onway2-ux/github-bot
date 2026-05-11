@@ -4,7 +4,7 @@ import smtplib
 import requests
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from email.utils import formataddr
+from email.utils import formataddr, make_msgid, formatdate
 
 # --- Configuration ---
 # These are fetched from GitHub Secrets in production
@@ -45,6 +45,8 @@ def send_email(to_email, subject, html_content, sender_name=None):
         
     msg['To'] = to_email
     msg['Subject'] = subject
+    msg['Date'] = formatdate(localtime=True)
+    msg['Message-ID'] = make_msgid(domain='gmail.com')
 
     # Attach the HTML content
     msg.attach(MIMEText(html_content, 'html'))
