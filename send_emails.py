@@ -4,6 +4,7 @@ import smtplib
 import requests
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.utils import formataddr
 
 # --- Configuration ---
 # These are fetched from GitHub Secrets in production
@@ -14,7 +15,6 @@ FIREBASE_TOKEN = os.getenv('FIREBASE_TOKEN', 'jBUMghKKe6tdHhpDRaTWLTRXPa6Gk90W5a
 
 def get_firebase_data(path):
     """Fetch data from Firebase RTDB using REST API."""
-    # Ensure the URL is properly formatted
     base_url = FIREBASE_URL.rstrip('/')
     url = f"{base_url}/{path}.json?auth={FIREBASE_TOKEN}"
     
@@ -32,10 +32,17 @@ def update_prospect_status(prospect_id, status):
     response = requests.patch(url, json={"status": status})
     return response.status_code == 200
 
-def send_email(to_email, subject, html_content):
-    """Send HTML email via Gmail SMTP."""
+def send_email(to_email, subject, html_content, sender_name=None):
+    """Send HTML email via Gmail SMTP with optional custom display name."""
     msg = MIMEMultipart()
-    msg['From'] = GMAIL_USER
+    
+    # Set the From header with a display name if provided
+    # formataddr creates "Sender Name <email@gmail.com>"
+    if sender_name:
+        msg['From'] = formataddr((sender_name, GMAIL_USER))
+    else:
+        msg['From'] = GMAIL_USER
+        
     msg['To'] = to_email
     msg['Subject'] = subject
 
@@ -48,16 +55,17 @@ def send_email(to_email, subject, html_content):
         server.send_message(msg)
 
 def main():
-    print("🚀 Starting Cold Email Outreach Bot...")
+    print("🚀 Starting Cold Email Outreach Bot v2.0...")
     
     try:
         # 1. Fetch Campaign Settings
         print("Fetching campaign settings...")
         campaign = get_firebase_data('campaign')
         if not campaign:
-            print("❌ No campaign settings found. Please configure subject and template in dashboard.")
+            print("❌ No campaign settings found. Please configure settings in dashboard.")
             return
 
+        sender_name = campaign.get('senderName', '')
         subject = campaign.get('subject', 'No Subject')
         template = campaign.get('template', '')
         delay = int(campaign.get('delay', 30))
@@ -78,6 +86,7 @@ def main():
         
         if not pending:
             print("✅ All emails have been sent! No pending prospects.")
+            print("💡 Tip: Use the 'Reset All' button in the dashboard to resend.")
             return
 
         print(f"📋 Found {len(pending)} pending prospects. Starting delivery...")
@@ -97,7 +106,7 @@ def main():
             personalized_body = template.replace('{{name}}', name)
 
             try:
-                send_email(email, subject, personalized_body)
+                send_email(email, subject, personalized_body, sender_name)
                 print(f"   ✅ Sent successfully!")
                 
                 # Update status in Firebase

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cold Email Outreach Bot - Firebase Auth</title>
+    <title>Cold Email Outreach Bot - v2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         [v-cloak] { display: none; }
@@ -35,7 +35,7 @@
             </div>
         </div>
 
-        <!-- Dashboard Section (Hidden by default) -->
+        <!-- Dashboard Section -->
         <div id="dashboard-container" class="hidden">
             <header class="flex justify-between items-center mb-8 bg-white p-5 rounded-xl shadow-sm border border-gray-100">
                 <div>
@@ -46,7 +46,7 @@
             </header>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Sidebar: Configuration -->
+                <!-- Sidebar -->
                 <div class="lg:col-span-1 space-y-6">
                     <section class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                         <h2 class="text-lg font-semibold mb-4 border-b pb-2 flex items-center">
@@ -67,9 +67,13 @@
 
                     <section class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                         <h2 class="text-lg font-semibold mb-4 border-b pb-2 flex items-center">
-                            <span class="mr-2">📈</span> Campaign Status
+                            <span class="mr-2">📈</span> Campaign Settings
                         </h2>
                         <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Sender Display Name</label>
+                                <input type="text" id="sender-name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2" placeholder="e.g. John Doe">
+                            </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Subject Line</label>
                                 <input type="text" id="email-subject" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
@@ -101,7 +105,10 @@
                             <h2 class="text-lg font-semibold flex items-center">
                                 <span class="mr-2">👥</span> Prospects
                             </h2>
-                            <button id="add-prospect-modal-btn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg font-semibold text-sm transition border border-indigo-100">+ Add Prospect</button>
+                            <div class="flex space-x-2">
+                                <button id="reset-status-btn" class="bg-amber-50 hover:bg-amber-100 text-amber-700 px-3 py-1 rounded-lg font-semibold text-sm transition border border-amber-100">Reset All to Pending</button>
+                                <button id="add-prospect-modal-btn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg font-semibold text-sm transition border border-indigo-100">+ Add Prospects</button>
+                            </div>
                         </div>
                         
                         <div class="overflow-x-auto">
@@ -125,17 +132,25 @@
         </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Bulk Add Modal -->
     <div id="add-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
-        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-sm mx-4">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">Add Prospect</h3>
-            <div class="space-y-4">
-                <input type="text" id="new-name" placeholder="Full Name" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                <input type="email" id="new-email" placeholder="Email Address" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                <div class="flex justify-end space-x-3 pt-2">
-                    <button id="close-modal" class="px-4 py-2 text-gray-500 hover:text-gray-700 font-medium">Cancel</button>
-                    <button id="save-prospect" class="bg-indigo-600 px-6 py-2 rounded-lg text-white font-bold hover:bg-indigo-700 transition">Add</button>
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-2xl mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">Add New Prospects</h3>
+                <button id="add-row-btn" class="text-indigo-600 hover:text-indigo-800 text-sm font-bold">+ Add Row</button>
+            </div>
+            
+            <div id="bulk-rows-container" class="max-h-[50vh] overflow-y-auto space-y-3 mb-6 p-2">
+                <!-- Rows will be injected here -->
+                <div class="flex space-x-2 bulk-row">
+                    <input type="text" placeholder="Name" class="w-1/2 border p-2 rounded-lg outline-none focus:ring-1 focus:ring-indigo-500">
+                    <input type="email" placeholder="Email" class="w-1/2 border p-2 rounded-lg outline-none focus:ring-1 focus:ring-indigo-500">
                 </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-4 border-t">
+                <button id="close-modal" class="px-4 py-2 text-gray-500 hover:text-gray-700 font-medium">Cancel</button>
+                <button id="save-bulk-prospects" class="bg-indigo-600 px-6 py-2 rounded-lg text-white font-bold hover:bg-indigo-700 transition">Save All</button>
             </div>
         </div>
     </div>
@@ -144,9 +159,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, set, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, update, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // --- Firebase Configuration (PROVIDED) ---
         const firebaseConfig = {
             apiKey: "AIzaSyDpKrYYfa_bzxSUc0qzwIMEymfG8bokIc0",
             authDomain: "githubemail-s.firebaseapp.com",
@@ -157,23 +171,16 @@
             appId: "1:737852994781:web:1adc9eb499e4d4301e1734"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // --- State ---
         let currentUser = null;
         let config = {
             ghRepo: 'onway2-ux/github-bot',
             ghPat: localStorage.getItem('ghPat') || ''
         };
 
-        // This is a placeholder for your token to be used by the script
-        const GH_PAT_PLACEHOLDER = ""; 
-
-
-        // --- Elements ---
         const authContainer = document.getElementById('auth-container');
         const dashboardContainer = document.getElementById('dashboard-container');
         const authEmail = document.getElementById('auth-email');
@@ -189,10 +196,11 @@
         const triggerBtn = document.getElementById('trigger-workflow');
         const prospectsList = document.getElementById('prospects-list');
         const subjectInput = document.getElementById('email-subject');
+        const senderNameInput = document.getElementById('sender-name');
         const delayInput = document.getElementById('email-delay');
         const templateInput = document.getElementById('email-template');
+        const resetStatusBtn = document.getElementById('reset-status-btn');
 
-        // --- Auth Logic ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
@@ -219,22 +227,20 @@
 
         logoutBtn.onclick = () => signOut(auth);
 
-        // --- Dashboard Logic ---
         function loadDashboard() {
             ghRepoInput.value = config.ghRepo;
             ghPatInput.value = config.ghPat;
 
-            // Listen for campaign data
             onValue(ref(db, 'campaign'), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
+                    senderNameInput.value = data.senderName || '';
                     subjectInput.value = data.subject || '';
                     delayInput.value = data.delay || 30;
                     templateInput.value = data.template || '';
                 }
             });
 
-            // Listen for prospects
             onValue(ref(db, 'prospects'), (snapshot) => {
                 renderProspects(snapshot.val());
             });
@@ -263,7 +269,6 @@
                 prospectsList.appendChild(row);
             });
 
-            // Attach delete events
             document.querySelectorAll('.delete-btn').forEach(btn => {
                 btn.onclick = () => {
                     if(confirm('Remove this prospect?')) remove(ref(db, `prospects/${btn.dataset.id}`));
@@ -271,17 +276,31 @@
             });
         }
 
-        // --- Actions ---
+        resetStatusBtn.onclick = async () => {
+            if(!confirm('This will set ALL prospects to "pending" so you can resend the campaign. Continue?')) return;
+            const snapshot = await get(ref(db, 'prospects'));
+            const prospects = snapshot.val();
+            if(!prospects) return;
+            
+            const updates = {};
+            Object.keys(prospects).forEach(id => {
+                updates[`prospects/${id}/status`] = 'pending';
+            });
+            await update(ref(db), updates);
+            alert('All prospects reset to pending!');
+        };
+
         saveConfigBtn.onclick = () => {
             config.ghRepo = ghRepoInput.value;
             config.ghPat = ghPatInput.value;
-            alert('Settings updated for this session!');
+            localStorage.setItem('ghPat', config.ghPat);
+            alert('Settings updated and saved to browser!');
         };
 
-        // Auto-save campaign data
-        [subjectInput, delayInput, templateInput].forEach(el => {
+        [subjectInput, delayInput, templateInput, senderNameInput].forEach(el => {
             el.onblur = () => {
                 update(ref(db, 'campaign'), {
+                    senderName: senderNameInput.value,
                     subject: subjectInput.value,
                     delay: delayInput.value,
                     template: templateInput.value
@@ -289,22 +308,49 @@
             };
         });
 
-        // Modal
+        // Bulk Modal Logic
         const addModal = document.getElementById('add-modal');
-        document.getElementById('add-prospect-modal-btn').onclick = () => addModal.classList.remove('hidden');
+        const bulkContainer = document.getElementById('bulk-rows-container');
+        const addRowBtn = document.getElementById('add-row-btn');
+
+        document.getElementById('add-prospect-modal-btn').onclick = () => {
+            bulkContainer.innerHTML = '';
+            for(let i=0; i<5; i++) addBulkRow(); // Start with 5 rows
+            addModal.classList.remove('hidden');
+        };
+
+        function addBulkRow() {
+            const div = document.createElement('div');
+            div.className = "flex space-x-2 bulk-row";
+            div.innerHTML = `
+                <input type="text" placeholder="Name" class="w-1/2 border p-2 rounded-lg outline-none focus:ring-1 focus:ring-indigo-500">
+                <input type="email" placeholder="Email" class="w-1/2 border p-2 rounded-lg outline-none focus:ring-1 focus:ring-indigo-500">
+            `;
+            bulkContainer.appendChild(div);
+        }
+
+        addRowBtn.onclick = addBulkRow;
         document.getElementById('close-modal').onclick = () => addModal.classList.add('hidden');
-        document.getElementById('save-prospect').onclick = () => {
-            const name = document.getElementById('new-name').value;
-            const email = document.getElementById('new-email').value;
-            if (name && email) {
-                push(ref(db, 'prospects'), { name, email, status: 'pending' });
+
+        document.getElementById('save-bulk-prospects').onclick = async () => {
+            const rows = document.querySelectorAll('.bulk-row');
+            let count = 0;
+            for(let row of rows) {
+                const name = row.children[0].value.trim();
+                const email = row.children[1].value.trim();
+                if(name && email) {
+                    await push(ref(db, 'prospects'), { name, email, status: 'pending' });
+                    count++;
+                }
+            }
+            if(count > 0) {
+                alert(`Added ${count} prospects!`);
                 addModal.classList.add('hidden');
-                document.getElementById('new-name').value = '';
-                document.getElementById('new-email').value = '';
+            } else {
+                alert('No valid names and emails found.');
             }
         };
 
-        // GitHub Workflow
         triggerBtn.onclick = async () => {
             if (!config.ghRepo || !config.ghPat) return alert('Missing GitHub settings!');
             if (!confirm('Start the automation?')) return;
