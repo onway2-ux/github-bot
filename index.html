@@ -3,11 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cold Email Outreach Bot - v2.0</title>
+    <title>Cold Email Outreach Bot - v2.5 Final</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Quill Rich Text Editor -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <style>
         [v-cloak] { display: none; }
         .hidden { display: none; }
+        #editor-container { height: 300px; }
+        .ql-editor { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -60,8 +65,12 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">GitHub PAT</label>
                                 <input type="password" id="gh-pat" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
+                                <div class="mt-2 flex items-center">
+                                    <input type="checkbox" id="remember-pat" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4">
+                                    <label for="remember-pat" class="ml-2 text-xs text-gray-600">Remember token in this browser</label>
+                                </div>
                             </div>
-                            <button id="save-config" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition">Save Settings</button>
+                            <button id="save-config" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition">Save Configuration</button>
                         </div>
                     </section>
 
@@ -72,8 +81,28 @@
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Sender Display Name</label>
-                                <input type="text" id="sender-name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2" placeholder="e.g. John Doe">
+                                <input type="text" id="sender-name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
                             </div>
+                            
+                            <!-- Profile Picture Toggle -->
+                            <div class="pt-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Display Picture Source</label>
+                                <div class="flex items-center space-x-4 mb-3">
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="pfp-source" value="gmail" checked class="form-radio text-indigo-600">
+                                        <span class="ml-2 text-xs text-gray-700">Gmail Profile</span>
+                                    </label>
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="pfp-source" value="custom" class="form-radio text-indigo-600">
+                                        <span class="ml-2 text-xs text-gray-700">Custom URL</span>
+                                    </label>
+                                </div>
+                                <div id="custom-pfp-container" class="hidden">
+                                    <input type="text" id="custom-pfp-url" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2" placeholder="https://image.url/photo.jpg">
+                                    <p class="text-[10px] text-gray-500 mt-1 italic">Note: Custom URLs require Gravatar linkage for most email clients.</p>
+                                </div>
+                            </div>
+
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Subject Line</label>
                                 <input type="text" id="email-subject" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
@@ -94,10 +123,10 @@
                 <div class="lg:col-span-2 space-y-6">
                     <section class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                         <h2 class="text-lg font-semibold mb-4 border-b pb-2 flex items-center">
-                            <span class="mr-2">📝</span> HTML Template
+                            <span class="mr-2">📝</span> Word Processor
                         </h2>
                         <p class="text-xs text-gray-500 mb-2 italic">Use {{name}} for personalization.</p>
-                        <textarea id="email-template" rows="10" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-3 font-mono text-sm" placeholder="Hi {{name}},<br><br>..."></textarea>
+                        <div id="editor-container"></div>
                     </section>
 
                     <section class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -106,8 +135,8 @@
                                 <span class="mr-2">👥</span> Prospects
                             </h2>
                             <div class="flex space-x-2">
-                                <button id="reset-status-btn" class="bg-amber-50 hover:bg-amber-100 text-amber-700 px-3 py-1 rounded-lg font-semibold text-sm transition border border-amber-100">Reset All to Pending</button>
-                                <button id="add-prospect-modal-btn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg font-semibold text-sm transition border border-indigo-100">+ Add Prospects</button>
+                                <button id="reset-status-btn" class="bg-amber-50 hover:bg-amber-100 text-amber-700 px-3 py-1 rounded-lg font-semibold text-sm transition border border-amber-100">Reset Status</button>
+                                <button id="add-prospect-modal-btn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg font-semibold text-sm transition border border-indigo-100">+ Add Bulk</button>
                             </div>
                         </div>
                         
@@ -121,9 +150,7 @@
                                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody id="prospects-list" class="bg-white divide-y divide-gray-200">
-                                    <!-- Rows injected here -->
-                                </tbody>
+                                <tbody id="prospects-list" class="bg-white divide-y divide-gray-200"></tbody>
                             </table>
                         </div>
                     </section>
@@ -136,18 +163,10 @@
     <div id="add-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
         <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-2xl mx-4">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-gray-800">Add New Prospects</h3>
-                <button id="add-row-btn" class="text-indigo-600 hover:text-indigo-800 text-sm font-bold">+ Add Row</button>
+                <h3 class="text-xl font-bold text-gray-800">Add Bulk Prospects</h3>
+                <button id="add-row-btn" class="text-indigo-600 hover:text-indigo-800 text-sm font-bold">+ Add Slot</button>
             </div>
-            
-            <div id="bulk-rows-container" class="max-h-[50vh] overflow-y-auto space-y-3 mb-6 p-2">
-                <!-- Rows will be injected here -->
-                <div class="flex space-x-2 bulk-row">
-                    <input type="text" placeholder="Name" class="w-1/2 border p-2 rounded-lg outline-none focus:ring-1 focus:ring-indigo-500">
-                    <input type="email" placeholder="Email" class="w-1/2 border p-2 rounded-lg outline-none focus:ring-1 focus:ring-indigo-500">
-                </div>
-            </div>
-
+            <div id="bulk-rows-container" class="max-h-[50vh] overflow-y-auto space-y-3 mb-6 p-2"></div>
             <div class="flex justify-end space-x-3 pt-4 border-t">
                 <button id="close-modal" class="px-4 py-2 text-gray-500 hover:text-gray-700 font-medium">Cancel</button>
                 <button id="save-bulk-prospects" class="bg-indigo-600 px-6 py-2 rounded-lg text-white font-bold hover:bg-indigo-700 transition">Save All</button>
@@ -155,7 +174,6 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -175,12 +193,27 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
+        // --- Editor Setup ---
+        const quill = new Quill('#editor-container', {
+            theme: 'snow',
+            placeholder: 'Hi {{name}},<br><br>I would love to connect...',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['link', 'clean']
+                ]
+            }
+        });
+
+        // --- State ---
         let currentUser = null;
         let config = {
             ghRepo: 'onway2-ux/github-bot',
             ghPat: localStorage.getItem('ghPat') || ''
         };
 
+        // --- Elements ---
         const authContainer = document.getElementById('auth-container');
         const dashboardContainer = document.getElementById('dashboard-container');
         const authEmail = document.getElementById('auth-email');
@@ -189,18 +222,21 @@
         const authError = document.getElementById('auth-error');
         const userDisplay = document.getElementById('user-display');
         const logoutBtn = document.getElementById('logout-btn');
-
         const ghRepoInput = document.getElementById('gh-repo');
         const ghPatInput = document.getElementById('gh-pat');
+        const rememberPatCheck = document.getElementById('remember-pat');
         const saveConfigBtn = document.getElementById('save-config');
         const triggerBtn = document.getElementById('trigger-workflow');
         const prospectsList = document.getElementById('prospects-list');
         const subjectInput = document.getElementById('email-subject');
         const senderNameInput = document.getElementById('sender-name');
         const delayInput = document.getElementById('email-delay');
-        const templateInput = document.getElementById('email-template');
         const resetStatusBtn = document.getElementById('reset-status-btn');
+        const customPfpContainer = document.getElementById('custom-pfp-container');
+        const customPfpUrlInput = document.getElementById('custom-pfp-url');
+        const pfpRadios = document.getElementsByName('pfp-source');
 
+        // --- Auth ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
@@ -227,9 +263,11 @@
 
         logoutBtn.onclick = () => signOut(auth);
 
+        // --- Dashboard ---
         function loadDashboard() {
             ghRepoInput.value = config.ghRepo;
             ghPatInput.value = config.ghPat;
+            rememberPatCheck.checked = !!localStorage.getItem('ghPat');
 
             onValue(ref(db, 'campaign'), (snapshot) => {
                 const data = snapshot.val();
@@ -237,19 +275,21 @@
                     senderNameInput.value = data.senderName || '';
                     subjectInput.value = data.subject || '';
                     delayInput.value = data.delay || 30;
-                    templateInput.value = data.template || '';
+                    quill.root.innerHTML = data.template || '';
+                    
+                    const pfpSource = data.pfpSource || 'gmail';
+                    pfpRadios.forEach(r => { if(r.value === pfpSource) r.checked = true; });
+                    customPfpContainer.classList.toggle('hidden', pfpSource === 'gmail');
+                    customPfpUrlInput.value = data.customPfpUrl || '';
                 }
             });
 
-            onValue(ref(db, 'prospects'), (snapshot) => {
-                renderProspects(snapshot.val());
-            });
+            onValue(ref(db, 'prospects'), (snapshot) => renderProspects(snapshot.val()));
         }
 
         function renderProspects(prospects) {
             prospectsList.innerHTML = '';
             if (!prospects) return;
-
             Object.keys(prospects).forEach(id => {
                 const p = prospects[id];
                 const row = document.createElement('tr');
@@ -268,70 +308,73 @@
                 `;
                 prospectsList.appendChild(row);
             });
-
             document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.onclick = () => {
-                    if(confirm('Remove this prospect?')) remove(ref(db, `prospects/${btn.dataset.id}`));
-                };
+                btn.onclick = () => { if(confirm('Remove?')) remove(ref(db, `prospects/${btn.dataset.id}`)); };
             });
         }
 
-        resetStatusBtn.onclick = async () => {
-            if(!confirm('This will set ALL prospects to "pending" so you can resend the campaign. Continue?')) return;
-            const snapshot = await get(ref(db, 'prospects'));
-            const prospects = snapshot.val();
-            if(!prospects) return;
-            
-            const updates = {};
-            Object.keys(prospects).forEach(id => {
-                updates[`prospects/${id}/status`] = 'pending';
-            });
-            await update(ref(db), updates);
-            alert('All prospects reset to pending!');
-        };
-
+        // --- Config Actions ---
         saveConfigBtn.onclick = () => {
             config.ghRepo = ghRepoInput.value;
             config.ghPat = ghPatInput.value;
-            localStorage.setItem('ghPat', config.ghPat);
-            alert('Settings updated and saved to browser!');
+            if (rememberPatCheck.checked) localStorage.setItem('ghPat', config.ghPat);
+            else localStorage.removeItem('ghPat');
+            alert('Settings saved!');
         };
 
-        [subjectInput, delayInput, templateInput, senderNameInput].forEach(el => {
-            el.onblur = () => {
-                update(ref(db, 'campaign'), {
-                    senderName: senderNameInput.value,
-                    subject: subjectInput.value,
-                    delay: delayInput.value,
-                    template: templateInput.value
-                });
+        // --- Campaign Updates ---
+        const updateCampaign = () => {
+            update(ref(db, 'campaign'), {
+                senderName: senderNameInput.value,
+                subject: subjectInput.value,
+                delay: delayInput.value,
+                template: quill.root.innerHTML,
+                pfpSource: Array.from(pfpRadios).find(r => r.checked).value,
+                customPfpUrl: customPfpUrlInput.value
+            });
+        };
+
+        [subjectInput, delayInput, senderNameInput, customPfpUrlInput].forEach(el => el.onblur = updateCampaign);
+        quill.on('text-change', () => {
+            clearTimeout(window.saveTimer);
+            window.saveTimer = setTimeout(updateCampaign, 1000);
+        });
+
+        pfpRadios.forEach(r => {
+            r.onchange = () => {
+                customPfpContainer.classList.toggle('hidden', r.value === 'gmail');
+                updateCampaign();
             };
         });
 
-        // Bulk Modal Logic
+        resetStatusBtn.onclick = async () => {
+            if(!confirm('Reset all to pending?')) return;
+            const snapshot = await get(ref(db, 'prospects'));
+            const data = snapshot.val();
+            if(!data) return;
+            const updates = {};
+            Object.keys(data).forEach(id => updates[`prospects/${id}/status`] = 'pending');
+            await update(ref(db), updates);
+            alert('All prospects reset!');
+        };
+
+        // --- Bulk Add Modal ---
         const addModal = document.getElementById('add-modal');
         const bulkContainer = document.getElementById('bulk-rows-container');
-        const addRowBtn = document.getElementById('add-row-btn');
-
         document.getElementById('add-prospect-modal-btn').onclick = () => {
             bulkContainer.innerHTML = '';
-            for(let i=0; i<5; i++) addBulkRow(); // Start with 5 rows
+            for(let i=0; i<5; i++) addBulkRow();
             addModal.classList.remove('hidden');
         };
 
         function addBulkRow() {
             const div = document.createElement('div');
             div.className = "flex space-x-2 bulk-row";
-            div.innerHTML = `
-                <input type="text" placeholder="Name" class="w-1/2 border p-2 rounded-lg outline-none focus:ring-1 focus:ring-indigo-500">
-                <input type="email" placeholder="Email" class="w-1/2 border p-2 rounded-lg outline-none focus:ring-1 focus:ring-indigo-500">
-            `;
+            div.innerHTML = `<input type="text" placeholder="Name" class="w-1/2 border p-2 rounded-lg"><input type="email" placeholder="Email" class="w-1/2 border p-2 rounded-lg">`;
             bulkContainer.appendChild(div);
         }
-
-        addRowBtn.onclick = addBulkRow;
+        document.getElementById('add-row-btn').onclick = addBulkRow;
         document.getElementById('close-modal').onclick = () => addModal.classList.add('hidden');
-
         document.getElementById('save-bulk-prospects').onclick = async () => {
             const rows = document.querySelectorAll('.bulk-row');
             let count = 0;
@@ -343,44 +386,27 @@
                     count++;
                 }
             }
-            if(count > 0) {
-                alert(`Added ${count} prospects!`);
-                addModal.classList.add('hidden');
-            } else {
-                alert('No valid names and emails found.');
-            }
+            if(count > 0) { addModal.classList.add('hidden'); alert(`Added ${count}!`); }
         };
 
+        // --- Workflow ---
         triggerBtn.onclick = async () => {
-            if (!config.ghRepo || !config.ghPat) return alert('Missing GitHub settings!');
-            if (!confirm('Start the automation?')) return;
-
+            if (!config.ghRepo || !config.ghPat) return alert('Check GitHub Settings!');
             setLoading(true);
             try {
                 const res = await fetch(`https://api.github.com/repos/${config.ghRepo}/actions/workflows/email-bot.yml/dispatches`, {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `token ${config.ghPat}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    },
+                    headers: { 'Authorization': `token ${config.ghPat}`, 'Accept': 'application/vnd.github.v3+json' },
                     body: JSON.stringify({ ref: 'main' })
                 });
-
-                if (res.ok) alert('Campaign started! Check GitHub Actions tab.');
-                else alert('Failed to start: ' + (await res.json()).message);
-            } catch (e) {
-                alert('Error: ' + e.message);
-            } finally {
-                setLoading(false);
-            }
+                if (res.ok) alert('Started!'); else alert('Error: ' + (await res.json()).message);
+            } catch (e) { alert(e.message); } finally { setLoading(false); }
         };
 
         function setLoading(loading) {
-            const btnText = document.getElementById('btn-text');
-            const btnLoader = document.getElementById('btn-loader');
             triggerBtn.disabled = loading;
-            btnText.textContent = loading ? 'Starting...' : '🚀 Send Campaign';
-            btnLoader.classList.toggle('hidden', !loading);
+            document.getElementById('btn-text').textContent = loading ? 'Starting...' : '🚀 Send Campaign';
+            document.getElementById('btn-loader').classList.toggle('hidden', !loading);
             triggerBtn.classList.toggle('opacity-50', loading);
         }
     </script>
